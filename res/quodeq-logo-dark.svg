@@ -19,11 +19,11 @@
   <style
      id="style1">
     :root {
-      --logo-q: #f3efe8;
-      --logo-chevron: #f3efe8;
-      --logo-chevron-hover: #ffffff;
-      --logo-needle: #f3efe8;
-      --logo-needle-dark: #d8d1c6;
+      --logo-q: #00d4ff;
+      --logo-chevron: #00d4ff;
+      --logo-chevron-hover: #33e0ff;
+      --logo-needle: #00d4ff;
+      --logo-needle-dark: #0090b0;
     }
 
     .q-fill {
@@ -63,7 +63,7 @@
          dx="0"
          dy="0"
          stdDeviation="6"
-         flood-color="#ffffff"
+         flood-color="#33e0ff"
          flood-opacity="0.28" />
     </filter>
     <mask
