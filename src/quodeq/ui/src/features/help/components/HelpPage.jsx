@@ -44,6 +44,8 @@ const SECTIONS = [
   { id: 'terminal', labelKey: 'help.navTerminal' },
   { id: 'settings', labelKey: 'help.navSettings' },
   { id: 'cli', labelKey: 'help.navCli' },
+  { id: 'ci', labelKey: 'help.navCi' },
+  { id: 'desktop-apps', labelKey: 'help.navDesktopApps' },
 ];
 
 function SectionNav({ active, onSelect }) {
