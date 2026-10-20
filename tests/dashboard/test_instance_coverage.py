@@ -75,7 +75,7 @@ class TestSendReload:
         ctrl2.try_acquire()  # returns False
         ctrl2.send_reload("http://localhost:9999")
 
-        time.sleep(0.3)
+        _wait_for(lambda: received)
         ctrl1.shutdown()
         assert received == ["http://localhost:9999"]
 
@@ -89,10 +89,10 @@ class TestSendReload:
         ctrl2 = InstanceController(sock_path=sock)
         ctrl2.try_acquire()
         ctrl2.send_reload("http://localhost:1111")
-        # Wait long enough for the listener to accept and process the first connection
-        time.sleep(1.5)
+        # Wait until the listener has handled the first connection
+        _wait_for(lambda: "http://localhost:1111" in received)
         ctrl2.send_reload("http://localhost:2222")
-        time.sleep(0.5)
+        _wait_for(lambda: "http://localhost:2222" in received)
 
         ctrl1.shutdown()
         assert "http://localhost:1111" in received
@@ -130,7 +130,7 @@ class TestListenerThread:
         assert ctrl._listen_thread is not None
         assert ctrl._listen_thread.is_alive()
         ctrl.shutdown()
-        time.sleep(0.5)
+        ctrl._listen_thread.join(timeout=10)
         assert not ctrl._listen_thread.is_alive()
 
     @_UNIX_SOCKET_ONLY
@@ -189,3 +189,10 @@ class TestDefaultPaths:
         from quodeq.dashboard._instance import _default_port_file
         path = _default_port_file()
         assert path.name == "dashboard.port"
+
+
+def _wait_for(condition, timeout=10.0):
+    """Poll until the listener thread has handled a message; a fixed sleep flaked on slow Windows runners."""
+    deadline = time.monotonic() + timeout
+    while not condition() and time.monotonic() < deadline:
+        time.sleep(0.02)
