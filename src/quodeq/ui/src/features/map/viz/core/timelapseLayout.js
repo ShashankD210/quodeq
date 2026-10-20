@@ -8,7 +8,8 @@ import { settleFolder } from './timelapseSettle.js';
  * the Map sorts them), so the latest run is today's map. Every other run
  * starts from the base on its own, drops what it does not hold (radius 0, in
  * place, so it grows in or shrinks out) and settles each folder's children
- * toward the folder's centre, big ones harder, without overlapping; the
+ * toward the folder's centre, big ones harder, without overlapping, as far as
+ * it differs from today (one as today keeps today's places); the
  * folder then wraps them with the Map's own spacing. Runs never depend on
  * each other, so small changes do not pile up over the history. A folder
  * holding only one folder is drawn as that folder (the Map's collapsed
