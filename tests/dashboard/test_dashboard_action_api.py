@@ -43,6 +43,19 @@ def test_spawn_action_api_sets_static_dist(monkeypatch, tmp_path):
     assert captured["env"]["QUODEQ_STATIC_DIST"] == str(dist_path)
 
 
+def test_spawn_action_api_detaches_stdin(monkeypatch, tmp_path):
+    """The API must not keep the launching terminal as stdin: it is revoked once the terminal closes."""
+    captured = {}
+
+    def fake_popen(cmd, **kwargs):
+        captured.update(kwargs)
+        return DummyProcess()
+
+    monkeypatch.setattr(_api_spawn.subprocess, "Popen", fake_popen)
+    spawn_action_api(_TEST_PORT, tmp_path / "fake.pid", _TEST_HOST)
+    assert captured["stdin"] is _api_spawn.subprocess.DEVNULL
+
+
 def test_force_action_api_host_port(monkeypatch):
     captured = {}
 

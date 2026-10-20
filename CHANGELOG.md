@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.15.1] - 2026-10-20
+
+### Improvements
+- **Evaluate a pulled project**: a project pulled from another machine keeps the publisher's folder path, so the Evaluate card now asks you to locate its code (choose a folder, or clone it from its origin) and keeps Scan disabled until it is found. When the pull collides with a repository you already have, **evaluate yours** opens it on Evaluate, with pull as a copy as the fallback.
+- **Help**: new Connect to CI and Desktop Apps (beta) pages; a custom standard is explained as its own dimension. The README is now a short landing page linking into the docs.
+
+### Fixes
+- **Evaluations failing at 0s**: an API server launched from a terminal that was later closed made every evaluation fail instantly with `init_sys_streams: Bad file descriptor`. The API and its jobs no longer inherit the terminal's stdin. Restart a running server to pick this up.
+- **Scope paths**: `--scope ./src`, `--scope .` and `--scope ./` no longer abort with "No source files found under scope".
+- **Map time-lapse**: the last step into today no longer reshuffles every circle; the time-lapse moves by what changed and ends on the same map as the Circle Pack.
+
 ## [1.15.0] - 2026-10-18
 
 ### Before you upgrade

@@ -137,6 +137,7 @@ class JobManager(JobMonitorMixin, JobCapacityMixin):
         try:
             process = self._spawn(
                 cmd,
+                stdin=subprocess.DEVNULL,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,

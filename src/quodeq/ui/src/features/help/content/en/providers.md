@@ -77,4 +77,4 @@ Points quodeq at a llama-server instance you run yourself. It serves one GGUF mo
 
 ### Without the dashboard
 
-A headless run (`quodeq evaluate`, CI) takes the provider and model from the environment instead of Settings. See *Command Line & CI*.
+A headless run (`quodeq evaluate`, CI) takes the provider and model from the environment instead of Settings. See *Command Line* and *Connect to CI*.

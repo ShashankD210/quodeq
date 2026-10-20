@@ -61,7 +61,7 @@ def spawn_action_api(
     verbose = child_env.get("QUODEQ_VERBOSE") == ENV_TRUTHY
     proc = subprocess.Popen(
         subprocess_cmd("api"),
-        env=child_env,
+        env=child_env, stdin=subprocess.DEVNULL,
         stdout=None if verbose else subprocess.DEVNULL,
         stderr=None if verbose else subprocess.DEVNULL,
         **_popen_platform_kwargs(),

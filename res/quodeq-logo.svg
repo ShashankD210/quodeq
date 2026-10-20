@@ -20,7 +20,7 @@
      id="style1">
     :root {
       --logo-q: #d80c18;
-      --logo-chevron: #14161b;
+      --logo-chevron: #1a1816;
       --logo-chevron-hover: #d80c18;
       --logo-needle: #f1171e;
       --logo-needle-dark: #aa0000;

@@ -57,3 +57,31 @@ test('a run lays out the same whatever was laid out before it', () => {
   const fresh = syntheticModel({ files: FILES, runs: RUNS, seed: 3 });
   assert.deepEqual(runLayout(fresh, 2), RUN_LAYOUTS[2]);
 });
+
+/** The model with one more run after today, holding `sizes`; that run's index. */
+function withRunAfter(sizes) {
+  return { ...MODEL, sizes: [...MODEL.sizes.slice(0, -1), sizes, MODEL.sizes[RUNS - 1]] };
+}
+
+/** Largest distance between where a and b draw the same circle, as a share of the map's radius. */
+function largestShift(a, b) {
+  let worst = 0;
+  for (let i = 0; i < a.length / XYR_STRIDE; i++) {
+    if (!(rOf(a, i) > 0 && rOf(b, i) > 0)) continue;
+    worst = Math.max(worst, Math.hypot(a[i * XYR_STRIDE] - b[i * XYR_STRIDE], a[i * XYR_STRIDE + 1] - b[i * XYR_STRIDE + 1]));
+  }
+  return worst / HALF;
+}
+
+test('a past run holding what today holds is drawn as today', () => {
+  const twin = withRunAfter(MODEL.sizes[RUNS - 1]);
+  assert.ok(largestShift(runLayout(twin, RUNS - 1), anchorLayout(twin)) < 1e-3);
+});
+
+test('a past run one small file away from today barely moves anything', () => {
+  const sizes = Float32Array.from(MODEL.sizes[RUNS - 1]);
+  const file = sizes.findIndex((s, i) => s > 0 && !kids[i].length);
+  sizes[file] += 1;
+  const near = withRunAfter(sizes);
+  assert.ok(largestShift(runLayout(near, RUNS - 1), anchorLayout(near)) < 0.02);
+});

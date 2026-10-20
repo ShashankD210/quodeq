@@ -7,7 +7,9 @@ import { forNeighbourPairs } from './circleGrid.js';
  * How a folder's children settle in one time-lapse run (timelapseLayout.js):
  * from their places today they drift toward the folder's centre, big ones
  * harder, push apart until they keep the Map's sibling gap, and the folder
- * wraps them with the Map's own margin.
+ * wraps them with the Map's own margin. A folder settles only as far as its
+ * children differ from today: one holding what it holds today keeps today's
+ * places, so the run before today moves into today's map by what changed.
  */
 
 const GOLDEN_ANGLE = 2.399963;
@@ -36,6 +38,8 @@ const PAD_SCALE = 1.8;
 const PAD_MIN = 0.9;
 const ROOM_GROWTH = 0.5;
 const ROOM_STEP = 0.6;
+/** How hard a folder settles per share of its children's size that differs from today (fully from 1 / CHANGE_GAIN). */
+const CHANGE_GAIN = 2;
 const NUDGE = 1e-3;
 const TINY = 1e-6;
 
@@ -134,6 +138,29 @@ function roomFor(i, slots, base, maxR) {
   return { pad, room: Math.min(base.xyr[i * XYR_STRIDE + R], Math.max(maxR + pad, need)) };
 }
 
+/** How far folder `i`'s children are from today: 0 when they are as today, 1 (settle fully) from a large change. */
+function changeFromToday(i, { base, rad }) {
+  let changed = 0;
+  let today = 0;
+  for (const c of base.kids[i]) {
+    const was = base.live[c] ? base.xyr[c * XYR_STRIDE + R] : 0;
+    changed += Math.abs(rad[c] - was);
+    today += was;
+  }
+  return today > 0 ? Math.min(1, (changed / today) * CHANGE_GAIN) : 1;
+}
+
+/** Today's places blended toward the settled ones by `change`, untangled; returns the folder's radius. */
+function blendWithToday(slots, { todayR, settledR, change, maxR }) {
+  for (const s of slots) { s.x = s.bx + (s.x - s.bx) * change; s.y = s.by + (s.y - s.by) * change; }
+  for (let it = 0; it < UNTANGLE_PASSES; it++) {
+    collide(slots, maxR);
+    if (it % UNTANGLE_CHECK_EVERY === UNTANGLE_CHECK_EVERY - 1 && worstOverlap(slots) <= UNTANGLED) break;
+  }
+  const reach = Math.max(...slots.map((s) => Math.hypot(s.x, s.y) + s.r * SIBLING_GAP_SCALE + SIBLING_GAP_MIN));
+  return Math.max(todayR + (settledR - todayR) * change, reach * FOLDER_MARGIN_SCALE + FOLDER_MARGIN_MIN);
+}
+
 /**
  * Settle folder `i`'s present children (their offsets into ox/oy) and return
  * its radius in the run; `base` is the layout's base (kids, xyr, pad, gap).
@@ -141,18 +168,25 @@ function roomFor(i, slots, base, maxR) {
 export function settleFolder(i, { base, rad, ox, oy }) {
   const { kids, xyr } = base;
   const o = i * XYR_STRIDE;
-  const slots = kids[i].filter((c) => rad[c] > 0).map((c) => ({
-    c, x: xyr[c * XYR_STRIDE] - xyr[o], y: xyr[c * XYR_STRIDE + Y] - xyr[o + Y], r: rad[c],
-  }));
+  const slots = kids[i].filter((c) => rad[c] > 0).map((c) => {
+    const bx = xyr[c * XYR_STRIDE] - xyr[o];
+    const by = xyr[c * XYR_STRIDE + Y] - xyr[o + Y];
+    return { c, bx, by, x: bx, y: by, r: rad[c] };
+  });
   if (!slots.length) return 0;
   // A folder holding only one folder is drawn as that folder (a collapsed chain).
   if (i > 0 && slots.length === 1 && kids[slots[0].c].length) { ox[slots[0].c] = 0; oy[slots[0].c] = 0; return slots[0].r; }
+  const change = changeFromToday(i, { base, rad });
+  // As today: today's places (ox/oy start at them) and size.
+  if (change === 0) return xyr[o + R];
   const maxR = Math.max(...slots.map((s) => s.r), TINY);
   const { pad, room } = roomFor(i, slots, base, maxR);
   if (slots.length > 1 && slots.length < BIG_GROUP) relaxInRoom(slots, { room, pad, todayR: xyr[o + R], maxR });
   else contain(slots, room, pad);
   if (slots.length > 1) tighten(slots, maxR);
   const e = recentre(slots);
+  const settledR = e.r * FOLDER_MARGIN_SCALE + FOLDER_MARGIN_MIN;
+  const r = change < 1 ? blendWithToday(slots, { todayR: xyr[o + R], settledR, change, maxR }) : settledR;
   for (const s of slots) { ox[s.c] = s.x; oy[s.c] = s.y; }
-  return e.r * FOLDER_MARGIN_SCALE + FOLDER_MARGIN_MIN;
+  return r;
 }
