@@ -4,6 +4,7 @@ from unittest.mock import patch
 import pytest
 
 from quodeq import cli
+from quodeq.dashboard.instances import LaunchRecord
 
 
 class _TTY(io.StringIO):
@@ -111,7 +112,9 @@ def test_upgrade_rejects_unknown_flags(restore_environ) -> None:
 
 def test_restart_stops_then_launches(restore_environ) -> None:
     order = []
-    with patch("quodeq.cli.stop_dashboard", side_effect=lambda: order.append("stop")), \
+    # A recorded launch directory would make restart chdir there; keep the test off the real record.
+    with patch("quodeq.cli.read_launch_args", return_value=LaunchRecord()), \
+         patch("quodeq.cli.stop_dashboard", side_effect=lambda: order.append("stop")), \
          patch("quodeq.cli.dashboard_main", side_effect=lambda argv: order.append("launch") or 0), \
          patch("quodeq.cli.maybe_emit_cli_notice"):
         assert cli.main(["restart"]) == 0
