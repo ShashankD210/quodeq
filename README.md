@@ -1,8 +1,6 @@
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="res/quodeq-logo-dark.svg" />
-    <img src="res/quodeq-logo.svg" alt="Quodeq" width="340" />
-  </picture>
+  <img src="res/quodeq-logo.svg#gh-light-mode-only" alt="Quodeq" width="340" />
+  <img src="res/quodeq-logo-dark.svg#gh-dark-mode-only" alt="Quodeq" width="340" />
 </p>
 
 <h2 align="center">AI-powered code quality and security scanner</h2>
@@ -21,10 +19,8 @@
 Quodeq reviews a codebase with the AI model you choose, against standards you can read and change: the six quality dimensions of [ISO 25010](https://www.iso.org/standard/35733.html) out of the box, and your team's own rules next to them. Every finding names the rule it breaks, the file and line, and the reason, so the last word stays with you. It is open source under the MIT license and runs on your machine, with no account, no Quodeq server and no telemetry.
 
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="res/dashboard-dark.png" />
-    <img src="res/dashboard.png" alt="The Quodeq Overview: the project's grade, each dimension's score and trend, the score history and what to fix first" width="900" />
-  </picture>
+  <img src="res/dashboard.png#gh-light-mode-only" alt="The Quodeq Overview: the project's grade, each dimension's score and trend, the score history and what to fix first" width="900" />
+  <img src="res/dashboard-dark.png#gh-dark-mode-only" alt="The Quodeq Overview: the project's grade, each dimension's score and trend, the score history and what to fix first" width="900" />
 </p>
 <p align="center"><sub>The Overview of a project: the grade, the dimensions, the score history, what to fix first.</sub></p>
 
