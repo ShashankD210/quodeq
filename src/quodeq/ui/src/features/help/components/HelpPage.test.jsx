@@ -85,13 +85,34 @@ describe('HelpPage overview section', () => {
 });
 
 describe('HelpPage command line section', () => {
-  it('documents the CLI commands and PR review flow', () => {
+  it('documents the CLI commands and points CI readers to their own page', () => {
     render(<HelpPage />);
-    fireEvent.click(screen.getByRole('button', { name: 'Command Line & CI' }));
-    expect(screen.getByRole('heading', { level: 2, name: 'Command Line & CI' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Command Line' }));
+    expect(screen.getByRole('heading', { level: 2, name: 'Command Line' })).toBeInTheDocument();
     expect(screen.getAllByText('quodeq review').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('quodeq export sarif').length).toBeGreaterThan(0);
     expect(screen.getAllByText(/--diff-from/).length).toBeGreaterThan(0);
+    expect(screen.getByRole('heading', { level: 3, name: 'In CI' })).toBeInTheDocument();
+  });
+});
+
+describe('HelpPage CI section', () => {
+  it('gathers the PR review, the pipeline job and the SARIF upload', () => {
+    render(<HelpPage />);
+    fireEvent.click(screen.getByRole('button', { name: 'Connect to CI' }));
+    expect(screen.getByRole('heading', { level: 2, name: 'Connect to CI' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 3, name: 'Review a pull request from your machine' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 3, name: 'Review it in the pipeline' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 3, name: 'Upload to code scanning' })).toBeInTheDocument();
+  });
+});
+
+describe('HelpPage desktop apps section', () => {
+  it('is the last section and calls the apps a beta', () => {
+    render(<HelpPage />);
+    const nav = screen.getAllByRole('button').filter((b) => b.classList.contains('help-section-btn'));
+    expect(nav.at(-1)).toHaveTextContent('Desktop Apps (beta)');
+    fireEvent.click(nav.at(-1));
+    expect(screen.getByRole('heading', { level: 2, name: 'Desktop Apps (beta)' })).toBeInTheDocument();
   });
 });
 
