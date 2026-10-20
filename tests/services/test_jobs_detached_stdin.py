@@ -17,10 +17,11 @@ from quodeq.core.run.job_status import JobStatus
 from quodeq.services.jobs import InMemoryJobStore, JobManager
 from tests.services.test_job_manager import _wait_for_job
 
-_LIBC = ctypes.CDLL(None) if sys.platform != "win32" else None
+# glibc exports revoke() as an ENOSYS stub, so only macOS really revokes.
+_LIBC = ctypes.CDLL(None) if sys.platform == "darwin" else None
 
 
-@pytest.mark.skipif(not hasattr(_LIBC, "revoke"), reason="revoke(2) is BSD/macOS only")
+@pytest.mark.skipif(_LIBC is None, reason="revoke(2) works on macOS only")
 def test_job_starts_when_server_stdin_is_revoked():
     master, slave = os.openpty()
     saved_stdin = os.dup(0)
