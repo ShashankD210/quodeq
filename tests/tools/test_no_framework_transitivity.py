@@ -28,6 +28,7 @@ assert not leaked, f"framework packages imported transitively: {leaked}"
 def test_core_test_helpers_import_no_frameworks():
     result = subprocess.run(
         [sys.executable, "-c", _PROBE],
+        cwd=Path(__file__).resolve().parents[2],  # `import tests...` resolves from the repo root
         capture_output=True, text=True, timeout=120,
     )
     assert result.returncode == 0, result.stderr
